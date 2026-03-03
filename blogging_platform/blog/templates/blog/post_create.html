@@ -1,0 +1,85 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Create a new post{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">
+                        {% if ai_generated %}
+                            🤖 Edit AI-Generated Post
+                        {% else %}
+                            ✏️ Create a New Post
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="card-body">
+                    {% if ai_generated %}
+                        <div class="alert alert-info">
+                            <strong>AI Generated!</strong> This post was created by AI about "<em>{{ original_topic }}</em>". 
+                            Feel free to edit the title and content before publishing.
+                        </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                            {{ form.title|add_class:"form-control" }}
+                            {% if form.title.errors %}
+                                <div class="text-danger">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label">Content</label>
+                            {{ form.content|add_class:"form-control"|add_attr:"rows:10" }}
+                            {% if form.content.errors %}
+                                <div class="text-danger">{{ form.content.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                {% if ai_generated %}
+                                    🚀 Publish Post
+                                {% else %}
+                                    ✅ Create Post
+                                {% endif %}
+                            </button>
+                            
+                            {% if ai_generated %}
+                                <a href="{% url 'ai_blog_writer' %}" class="btn btn-secondary">
+                                    🔄 Generate Another
+                                </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">
+                                ❌ Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            {% if not ai_generated %}
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">🤖 Want AI Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Let AI generate a complete blog post for you!</p>
+                    <a href="{% url 'ai_blog_writer' %}" class="btn btn-outline-primary">
+                        🚀 Try AI Blog Writer
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

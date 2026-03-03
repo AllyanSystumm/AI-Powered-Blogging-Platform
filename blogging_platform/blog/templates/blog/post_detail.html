@@ -1,0 +1,112 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1>{{ post.title }}</h1>
+  <p class="text-muted">By {{ post.author.username }} • {{ post.created_at }}</p>
+  <p>{{ post.content }}</p>
+  
+  <!-- AI Summary Section -->
+  <div class="mt-3">
+    <button id="generate-summary-btn" class="btn btn-info btn-sm" onclick="generateAISummary()">
+      🤖 Generate AI Summary
+    </button>
+    <div id="ai-summary-container" class="mt-3" style="display: none;">
+      <div class="alert alert-info">
+        <h5><strong>AI Summary:</strong></h5>
+        <p id="ai-summary-text"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>Comments</h3>
+{% for comment in comments %}
+  <div class="border rounded p-3 mb-2">
+    <strong>{{ comment.author }}</strong>:
+    <p>{{ comment.body }}</p>
+  </div>
+{% empty %}
+  <p class="text-muted">No comments yet.</p>
+{% endfor %}
+
+<hr>
+
+<h4>Leave a Comment</h4>
+<form method="post" class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  
+  <!-- AI Comment Suggestion -->
+  <div class="mt-2">
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="getAICommentSuggestion()">
+      💡 Get AI Comment Suggestion
+    </button>
+    <div id="ai-comment-container" class="mt-2" style="display: none;">
+      <div class="alert alert-light">
+        <strong>Suggestion:</strong> <span id="ai-comment-text"></span>
+        <button type="button" class="btn btn-sm btn-link ms-2" onclick="useAISuggestion()">Use This</button>
+      </div>
+    </div>
+  </div>
+  
+  <button class="btn btn-primary mt-2" type="submit">Submit Comment</button>
+</form>
+
+<script>
+const postId = {{ post.id }};
+
+function generateAISummary() {
+  const btn = document.getElementById('generate-summary-btn');
+  const container = document.getElementById('ai-summary-container');
+  const summaryText = document.getElementById('ai-summary-text');
+  
+  btn.disabled = true;
+  btn.textContent = '🤖 Generating...';
+  
+  fetch(`/post/${postId}/ai-summary/`)
+    .then(response => response.json())
+    .then(data => {
+      summaryText.textContent = data.summary;
+      container.style.display = 'block';
+      btn.textContent = '🤖 Regenerate Summary';
+      btn.disabled = false;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      summaryText.textContent = 'Unable to generate summary. Please try again.';
+      container.style.display = 'block';
+      btn.textContent = '🤖 Generate AI Summary';
+      btn.disabled = false;
+    });
+}
+
+function getAICommentSuggestion() {
+  const container = document.getElementById('ai-comment-container');
+  const suggestionText = document.getElementById('ai-comment-text');
+  
+  container.style.display = 'block';
+  suggestionText.textContent = 'Generating suggestion...';
+  
+  fetch(`/post/${postId}/ai-comment-suggestion/`)
+    .then(response => response.json())
+    .then(data => {
+      suggestionText.textContent = data.suggestion;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      suggestionText.textContent = 'This is an interesting perspective! I\'d love to hear more about your thoughts.';
+    });
+}
+
+function useAISuggestion() {
+  const suggestionText = document.getElementById('ai-comment-text').textContent;
+  const commentTextarea = document.querySelector('textarea[name="body"]');
+  if (commentTextarea) {
+    commentTextarea.value = suggestionText;
+  }
+}
+</script>
+{% endblock %}
