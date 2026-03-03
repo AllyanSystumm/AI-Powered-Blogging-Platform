@@ -29,7 +29,7 @@
                         
                         <div class="mb-3">
                             <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
-                            {{ form.title|add_class:"form-control" }}
+                            {{ form.title }}
                             {% if form.title.errors %}
                                 <div class="text-danger">{{ form.title.errors }}</div>
                             {% endif %}
@@ -37,7 +37,7 @@
                         
                         <div class="mb-3">
                             <label for="{{ form.content.id_for_label }}" class="form-label">Content</label>
-                            {{ form.content|add_class:"form-control"|add_attr:"rows:10" }}
+                            {{ form.content }}
                             {% if form.content.errors %}
                                 <div class="text-danger">{{ form.content.errors }}</div>
                             {% endif %}
