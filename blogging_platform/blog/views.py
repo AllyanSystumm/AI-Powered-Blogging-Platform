@@ -1,10 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from .models import Post
 from .forms import CommentForm, PostForm, UserRegisterForm
 from .ai_service import get_ai_summary, get_ai_comment_suggestion, generate_ai_blog_post
+
+def is_superuser(user):
+    return user.is_superuser
 
 def post_list(request):
     posts = Post.objects.all()
@@ -31,6 +34,7 @@ def post_detail(request, id):
     })
 
 @login_required
+@user_passes_test(is_superuser)
 def post_create(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
@@ -68,6 +72,7 @@ def ai_comment_suggestion(request, post_id):
     return JsonResponse({'suggestion': suggestion})
 
 @login_required
+@user_passes_test(is_superuser)
 def ai_blog_writer(request):
     """AI blog writing page"""
     if request.method == 'POST':
