@@ -100,6 +100,16 @@ def ai_blog_writer(request):
     
     return render(request, 'blog/ai_blog_writer.html')
 
+@login_required
+@user_passes_test(is_superuser)
+def post_delete(request, id):
+    post = get_object_or_404(Post, id=id)
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, "Post deleted successfully.")
+        return redirect('post_list')
+    return render(request, 'blog/post_confirm_delete.html', {'post': post})
+
 def ai_generate_post(request):
     """AJAX endpoint for AI post generation"""
     if request.method == 'POST':

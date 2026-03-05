@@ -1,0 +1,20 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/AI-Powered-Blogging-Platform/AI-Powered-Blogging-Platform/blogging_platform
+Environment="GROQ_API_KEY=your_groq_api_key_here"
+Environment="DJANGO_DEBUG=False"
+Environment="DJANGO_SECRET_KEY=your_django_secret_key_here"
+Environment="DJANGO_ALLOWED_HOSTS=13.222.110.63,localhost,127.0.0.1"
+ExecStart=/home/ec2-user/myenv/bin/gunicorn \
+          --access-logfile - \
+          --workers 3 \
+          --bind unix:/home/ec2-user/gunicorn.sock \
+          blogproject.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
